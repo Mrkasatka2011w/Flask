@@ -1,0 +1,35 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    margin-bottom: 20px;
+}
+
+.card {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.badge {
+    font-weight: normal;
+}
+
+.alert {
+    border-radius: 5px;
+}
+
+.btn-outline-success.active {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-outline-danger.active {
+    background-color: #dc3545;
+    color: white;
+}
+
+footer {
+    margin-top: 50px;
+}

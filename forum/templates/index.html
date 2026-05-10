@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Все вопросы</h2>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('ask') }}" class="btn btn-primary">Задать вопрос</a>
+            {% endif %}
+        </div>
+
+        <!-- Статистика -->
+        <div class="row text-center mb-3">
+            <div class="col-4">
+                <div class="card bg-light py-2">
+                    <strong>{{ stats.questions }}</strong>
+                    <small>вопросов</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card bg-light py-2">
+                    <strong>{{ stats.answers }}</strong>
+                    <small>ответов</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card bg-light py-2">
+                    <strong>{{ stats.users }}</strong>
+                    <small>пользователей</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сортировка -->
+        <div class="btn-group mb-3">
+            <a href="?sort=newest" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'newest' }}">Новые</a>
+            <a href="?sort=votes" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'votes' }}">По голосам</a>
+            <a href="?sort=views" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'views' }}">По просмотрам</a>
+            <a href="?sort=unanswered" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'unanswered' }}">Без ответа</a>
+        </div>
+
+        <!-- Список вопросов -->
+        {% if questions %}
+            {% for q in questions %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-1 text-center">
+                            <div><strong>{{ q.votes }}</strong></div>
+                            <small class="text-muted">голосов</small>
+                            <!-- ИСПРАВЛЕНО: используем answers_count вместо q.answers|length -->
+                            <div class="mt-2"><strong>{{ q.answers_count }}</strong></div>
+                            <small class="text-muted">ответов</small>
+                            <div class="mt-2"><small class="text-muted">{{ q.views }}</small></div>
+                            <small class="text-muted">просм.</small>
+                        </div>
+                        <div class="col-md-11">
+                            <h5>
+                                <a href="{{ url_for('question', question_id=q.id) }}" class="text-decoration-none">
+                                    {{ q.title }}
+                                </a>
+                            </h5>
+                            <p class="text-muted small">{{ q.body[:200] }}{% if q.body|length > 200 %}...{% endif %}</p>
+
+                            {% if q.tags %}
+                                {% for tag in q.tags.split(',') %}
+                                    <a href="{{ url_for('index', tag=tag.strip()) }}" class="badge bg-light text-dark text-decoration-none me-1">
+                                        {{ tag.strip() }}
+                                    </a>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="mt-2">
+                                <small>
+                                    <a href="{{ url_for('user_profile', username=q.author.username) }}" class="text-decoration-none">
+                                        {{ q.author.username }}
+                                    </a>
+                                    <span class="badge bg-warning text-dark ms-1">{{ q.author.reputation }}</span>
+                                    • {{ q.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <h4 class="text-muted">Вопросов пока нет</h4>
+                <p>Станьте первым, кто задаст вопрос!</p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('ask') }}" class="btn btn-primary">Задать вопрос</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Зарегистрироваться</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+        <!-- Боковая панель -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <strong>Популярные теги</strong>
+            </div>
+            <div class="card-body">
+                {% if popular_tags %}
+                    {% for tag, count in popular_tags %}
+                        <a href="{{ url_for('index', tag=tag) }}" class="badge bg-light text-dark me-1 mb-1 p-2 text-decoration-none">
+                            {{ tag }} ×{{ count }}
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <small class="text-muted">Нет тегов</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

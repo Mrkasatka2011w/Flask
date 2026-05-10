@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>{{ user.username }}</h3>
+                <p>
+                    <span class="badge bg-warning text-dark fs-6">Репутация: {{ user.reputation }}</span>
+                    <span class="text-muted ms-3">На сайте с {{ user.created_at.strftime('%d.%m.%Y') }}</span>
+                </p>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h4>{{ questions_count }}</h4>
+                        <small class="text-muted">вопросов</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>{{ answers_count }}</h4>
+                        <small class="text-muted">ответов</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>{{ user.reputation }}</h4>
+                        <small class="text-muted">репутация</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вопросы пользователя -->
+        <h4>Вопросы ({{ questions_count }})</h4>
+        {% if questions %}
+            {% for q in questions %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <a href="{{ url_for('question', question_id=q.id) }}" class="text-decoration-none">
+                                    {{ q.title }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">{{ q.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary">{{ q.votes }} голосов</span>
+                            <span class="badge bg-secondary">{{ q.answers_count }} ответов</span>
+                            <span class="badge bg-info">{{ q.views }} просмотров</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-light">
+                <i class="bi bi-info-circle"></i> Пользователь ещё не задавал вопросов
+            </div>
+        {% endif %}
+
+        <!-- Ответы пользователя -->
+        <h4 class="mt-4">Ответы ({{ answers_count }})</h4>
+        {% if answers %}
+            {% for a in answers %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Ответ на вопрос:</small>
+                            <a href="{{ url_for('question', question_id=a.question_id) }}" class="text-decoration-none">
+                                {{ a.question.title[:80] }}{% if a.question.title|length > 80 %}...{% endif %}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ a.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary">{{ a.votes }} голосов</span>
+                            {% if a.is_accepted %}
+                                <span class="badge bg-success">✓ Принят</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-light">
+                <i class="bi bi-info-circle"></i> Пользователь ещё не отвечал на вопросы
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

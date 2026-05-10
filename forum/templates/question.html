@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <!-- Вопрос -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>{{ question.title }}</h3>
+                <hr>
+                <div class="mb-3">{{ question.body }}</div>
+
+                {% if question.tags %}
+                    <div class="mb-3">
+                        {% for tag in question.tags.split(',') %}
+                            <a href="{{ url_for('index', tag=tag.strip()) }}" class="badge bg-light text-dark text-decoration-none me-1">
+                                {{ tag.strip() }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        {% if current_user.is_authenticated and current_user.id != question.user_id %}
+                            <a href="{{ url_for('vote_question', question_id=question.id, vote_type='up') }}"
+                               class="btn btn-sm btn-outline-success me-1 {{ 'active' if user_votes.get('q' + question.id|string) == 'up' }}">
+                                ▲
+                            </a>
+                        {% endif %}
+                        <span class="mx-2 fw-bold">{{ question.votes }}</span>
+                        {% if current_user.is_authenticated and current_user.id != question.user_id %}
+                            <a href="{{ url_for('vote_question', question_id=question.id, vote_type='down') }}"
+                               class="btn btn-sm btn-outline-danger {{ 'active' if user_votes.get('q' + question.id|string) == 'down' }}">
+                                ▼
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <small>
+                        <a href="{{ url_for('user_profile', username=question.author.username) }}">
+                            {{ question.author.username }}
+                        </a>
+                        <span class="badge bg-warning text-dark">{{ question.author.reputation }}</span>
+                        <br>
+                        {{ question.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        • 👁 {{ question.views }} просмотров
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ответы -->
+        <!-- ИСПРАВЛЕНО: используем answers|length вместо answers.count() -->
+        <h4>{{ answers|length }} ответ(ов)</h4>
+
+        {% if answers %}
+            {% for answer in answers %}
+            <div class="card mb-3 {{ 'border-success' if answer.is_accepted }}">
+                <div class="card-body">
+                    {% if answer.is_accepted %}
+                        <div class="alert alert-success py-1 mb-2">✓ Принятый ответ</div>
+                    {% endif %}
+
+                    <div class="mb-3">{{ answer.body }}</div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            {% if current_user.is_authenticated and current_user.id != answer.user_id %}
+                                <a href="{{ url_for('vote_answer', answer_id=answer.id, vote_type='up') }}"
+                                   class="btn btn-sm btn-outline-success me-1 {{ 'active' if user_votes.get('a' + answer.id|string) == 'up' }}">
+                                    ▲
+                                </a>
+                            {% endif %}
+                            <span class="mx-2 fw-bold">{{ answer.votes }}</span>
+                            {% if current_user.is_authenticated and current_user.id != answer.user_id %}
+                                <a href="{{ url_for('vote_answer', answer_id=answer.id, vote_type='down') }}"
+                                   class="btn btn-sm btn-outline-danger {{ 'active' if user_votes.get('a' + answer.id|string) == 'down' }}">
+                                    ▼
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {% if current_user.id == question.user_id and not answer.is_accepted %}
+                                <a href="{{ url_for('accept', answer_id=answer.id) }}" class="btn btn-sm btn-success me-2">
+                                    ✓ Принять ответ
+                                </a>
+                            {% endif %}
+
+                            <small>
+                                <a href="{{ url_for('user_profile', username=answer.author.username) }}">
+                                    {{ answer.author.username }}
+                                </a>
+                                <span class="badge bg-warning text-dark">{{ answer.author.reputation }}</span>
+                                <br>
+                                {{ answer.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                Пока нет ответов. {% if current_user.is_authenticated %}Станьте первым, кто ответит!{% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Форма ответа -->
+        {% if current_user.is_authenticated %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <strong>Ваш ответ</strong>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('answer', question_id=question.id) }}">
+                    <div class="mb-3">
+                        <textarea name="body" class="form-control" rows="5"
+                                  placeholder="Напишите ваш ответ..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить ответ</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-4">
+            <a href="{{ url_for('login') }}">Войдите</a> или <a href="{{ url_for('register') }}">зарегистрируйтесь</a>, чтобы ответить на вопрос.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
