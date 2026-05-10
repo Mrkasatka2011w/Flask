@@ -16,7 +16,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
-# ============ МОДЕЛИ ============
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -26,8 +25,6 @@ class User(UserMixin, db.Model):
     reputation = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # ИСПРАВЛЕНО: изменил lazy='dynamic' на lazy='select'
-    # чтобы избежать проблем с len() в шаблонах
     questions = db.relationship('Question', backref='author', lazy=True)
     answers = db.relationship('Answer', backref='author', lazy=True)
 
@@ -79,7 +76,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# ============ МАРШРУТЫ ============
 @app.route('/')
 def index():
     sort = request.args.get('sort', 'newest')
@@ -249,7 +245,6 @@ def question(question_id):
     question.views += 1
     db.session.commit()
 
-    # ИСПРАВЛЕНО: получаем ответы как список
     answers = Answer.query.filter_by(question_id=question.id) \
         .order_by(Answer.is_accepted.desc(), Answer.votes.desc()) \
         .all()
@@ -436,20 +431,17 @@ def accept(answer_id):
 
 @app.route('/user/<username>')
 def user_profile(username):
-    """Профиль пользователя"""
     user = User.query.filter_by(username=username).first()
     if not user:
         flash('Пользователь не найден', 'error')
         return redirect(url_for('index'))
 
-    # ИСПРАВЛЕНО: получаем вопросы и ответы как списки
     questions = Question.query.filter_by(user_id=user.id) \
         .order_by(Question.created_at.desc()).all()
 
     answers = Answer.query.filter_by(user_id=user.id) \
         .order_by(Answer.created_at.desc()).all()
 
-    # Передаем количество отдельно
     return render_template('user.html',
                            user=user,
                            questions=questions,
@@ -458,7 +450,6 @@ def user_profile(username):
                            answers_count=len(answers))
 
 
-# ============ ЗАПУСК ============
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

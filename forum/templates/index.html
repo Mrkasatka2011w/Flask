@@ -10,7 +10,6 @@
             {% endif %}
         </div>
 
-        <!-- Статистика -->
         <div class="row text-center mb-3">
             <div class="col-4">
                 <div class="card bg-light py-2">
@@ -32,7 +31,6 @@
             </div>
         </div>
 
-        <!-- Сортировка -->
         <div class="btn-group mb-3">
             <a href="?sort=newest" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'newest' }}">Новые</a>
             <a href="?sort=votes" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'votes' }}">По голосам</a>
@@ -40,7 +38,6 @@
             <a href="?sort=unanswered" class="btn btn-sm btn-outline-secondary {{ 'active' if sort == 'unanswered' }}">Без ответа</a>
         </div>
 
-        <!-- Список вопросов -->
         {% if questions %}
             {% for q in questions %}
             <div class="card mb-3">
@@ -98,7 +95,6 @@
         {% endif %}
     </div>
 
-        <!-- Боковая панель -->
     <div class="col-md-3">
         <div class="card">
             <div class="card-header">

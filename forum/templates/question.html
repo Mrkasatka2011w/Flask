@@ -3,7 +3,6 @@
 {% block content %}
 <div class="row">
     <div class="col-md-9">
-        <!-- Вопрос -->
         <div class="card mb-4">
             <div class="card-body">
                 <h3>{{ question.title }}</h3>
@@ -50,8 +49,6 @@
             </div>
         </div>
 
-        <!-- Ответы -->
-        <!-- ИСПРАВЛЕНО: используем answers|length вместо answers.count() -->
         <h4>{{ answers|length }} ответ(ов)</h4>
 
         {% if answers %}
@@ -107,7 +104,6 @@
             </div>
         {% endif %}
 
-        <!-- Форма ответа -->
         {% if current_user.is_authenticated %}
         <div class="card mt-4">
             <div class="card-header">
